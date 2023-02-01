@@ -1,21 +1,34 @@
 import { createContext, useContext, ReactElement, useState, useReducer } from "react";
 
-export type T_AuthState = {
-  currentUser: boolean,
+type T_AuthState = { //this is type is the output of reducer
+  userInfo: string,
+  isLogin:boolean
 };
+const defaultAuthState:T_AuthState={
+  userInfo: '',
+  isLogin:false
+}
 enum T_AuthActionType{
-  SETCURRENTUSER
+  LOGIN,
+  LOGOUT
 }
-type T_AuthAction={
+type T_AuthAction={ //this type is for reducer input.
   actionType:T_AuthActionType,
-  payload?:boolean
+  payload?:string
 }
-const authReducer=(state:T_AuthState,action:T_AuthAction)=>{
+const authReducer=(state:T_AuthState,action:T_AuthAction):T_AuthState=>{
   switch(action.actionType){
-    case T_AuthActionType.SETCURRENTUSER:{
+    case T_AuthActionType.LOGIN:{
       const newState={...state}
+      newState.isLogin=true
       if(action.payload)
-        newState.currentUser=action.payload
+        newState.userInfo=action.payload
+      return newState
+    }
+    case T_AuthActionType.LOGOUT:{
+      const newState={...state}
+      newState.isLogin=false
+      newState.userInfo=''
       return newState
     }
     default:
@@ -25,12 +38,13 @@ const authReducer=(state:T_AuthState,action:T_AuthAction)=>{
 
 const useAuthContext=(initState:T_AuthState)=>{
   const [state,dispath]=useReducer(authReducer,initState)
-  const setUser=(hasUser:boolean)=>dispath({actionType:T_AuthActionType.SETCURRENTUSER,payload:hasUser})
-  return { currentUser:state.currentUser,setUser}
+  const userLogin=(userInfo:string)=>dispath({actionType:T_AuthActionType.LOGIN,payload:userInfo})
+  const userLogout=()=>dispath({actionType:T_AuthActionType.LOGOUT})
+  return { state,userLogin,userLogout}//this is the real type for useContext
 }
 
 type T_UseAuthContent=ReturnType<typeof useAuthContext>
-const default_UseAuthContent:T_UseAuthContent={ currentUser:false,setUser:(a:boolean)=>{} }
+const default_UseAuthContent:T_UseAuthContent={ state:defaultAuthState,userLogin:(a:string)=>{},userLogout:()=>{} }
 export const AuthContext = createContext<T_UseAuthContent>(default_UseAuthContent)
 
 export const AuthContextProvider = ({
@@ -40,7 +54,7 @@ export const AuthContextProvider = ({
 }) => {
   
   return (
-    <AuthContext.Provider value={useAuthContext({currentUser:false})}>
+    <AuthContext.Provider value={useAuthContext(defaultAuthState)}>
     {children}
   </AuthContext.Provider>
   )

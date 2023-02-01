@@ -24,7 +24,7 @@ const Login = () => {
         // Signed in
         const user = userCredential.user;
         console.log(user)
-        authContext.setUser(true)
+        authContext.userLogin(JSON.stringify(user))
         navigate('/')
       })
       .catch((error) => {
