@@ -1,12 +1,16 @@
-import { createContext, useContext, ReactElement, useState, useReducer } from "react";
+import { createContext, useContext, ReactElement, useState, useReducer, useEffect } from "react";
 
 type T_AuthState = { //this is type is the output of reducer
   userInfo: string,
   isLogin:boolean
 };
-const defaultAuthState:T_AuthState={
-  userInfo: '',
-  isLogin:false
+const defaultAuthState=():T_AuthState=>{
+  const val=localStorage.getItem('user') as string
+
+  if(!val) return{userInfo:'',isLogin:false}
+
+  const a= JSON.parse(val) as T_AuthState
+  return a
 }
 enum T_AuthActionType{
   LOGIN,
@@ -44,7 +48,7 @@ const useAuthContext=(initState:T_AuthState)=>{
 }
 
 type T_UseAuthContent=ReturnType<typeof useAuthContext>
-const default_UseAuthContent:T_UseAuthContent={ state:defaultAuthState,userLogin:(a:string)=>{},userLogout:()=>{} }
+const default_UseAuthContent:T_UseAuthContent={ state:defaultAuthState(),userLogin:(a:string)=>{},userLogout:()=>{} }
 export const AuthContext = createContext<T_UseAuthContent>(default_UseAuthContent)
 
 export const AuthContextProvider = ({
@@ -52,9 +56,12 @@ export const AuthContextProvider = ({
 }: {
   children: ReactElement
 }) => {
-  
+  const _useAuthContext=useAuthContext(defaultAuthState())
+  useEffect(()=>{
+    localStorage.setItem('user',JSON.stringify(_useAuthContext.state))
+  },[_useAuthContext.state])
   return (
-    <AuthContext.Provider value={useAuthContext(defaultAuthState)}>
+    <AuthContext.Provider value={_useAuthContext}>
     {children}
   </AuthContext.Provider>
   )

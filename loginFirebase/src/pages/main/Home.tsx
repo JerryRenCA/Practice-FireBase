@@ -7,10 +7,14 @@ const Container=tw.div``
 
 const Home = () => {
     const authContext=useContext(AuthContext)
+    const handleLogout=()=>{
+        authContext.userLogout()
+    }
     return (
         <Container>
             Home Page
             <div>{authContext.state.userInfo}</div>
+            <button onClick={handleLogout}>Logout</button>
         </Container>
     )
 }
