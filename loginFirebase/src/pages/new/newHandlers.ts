@@ -1,34 +1,62 @@
-import { doc, setDoc, addDoc, collection } from "firebase/firestore";
-import { useState } from "react";
-import { db } from "../../firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  doc,
+  setDoc,
+  addDoc,
+  collection,
+  serverTimestamp,
+} from "firebase/firestore";
+import { Dispatch, useState } from "react";
+import { auth, db } from "../../firebase";
 
 // types
 export type T_User = {
-    userName: string,
-    password: string
-  };
-export  const default_User: T_User = { userName: "",password:"" };
-
-export const [userData, setUserData] = useState(default_User);
-
-export const handleInput = (e:React.ChangeEvent<HTMLInputElement>) => {
-    type key =keyof T_User
-    const id=e.target.id as key
-    const val=e.target.value
-    const newData={...userData}
-    newData[id]=val
+  username: string;
+  email: string;
+  password: string;
 };
-export const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
+export const default_User: T_User = { username: "", email: "", password: "" };
+
+export const handleInput = (
+  e: React.ChangeEvent<HTMLInputElement>,
+  userData: T_User,
+  setUserData: React.Dispatch<React.SetStateAction<T_User>>
+) => {
+  type key = keyof T_User;
+  const id = e.target.id as key;
+  const val = e.target.value;
+  const newData = { ...userData };
+  newData[id] = val;
+  setUserData(newData);
+};
+function checkValidate(userData: T_User) {
+  if (userData.email == "") return false;
+  return true;
+}
+export const handleAdd = async (
+  e: React.FormEvent<HTMLFormElement>,
+  userData: T_User,
+  setUserData: React.Dispatch<React.SetStateAction<T_User>>
+) => {
   e.preventDefault();
-  console.log("res");
-  const res = await addDoc(collection(db, "cities"), {
-    name: "Los Angeles 11",
-    state: "CA2",
-    country: "USA2",
-  });
-  console.log(res);
+  if (!checkValidate(userData)) return;
+  try {
+    const res = await createUserWithEmailAndPassword(
+      auth,
+      userData.email,
+      userData.password
+    );
+    await setDoc(doc(db, "userInfo", res.user.uid), {
+      ...userData,
+      timeStamp: serverTimestamp(),
+    });
+    console.log(res.user);
+    setUserData(default_User);
+  } catch (e) {
+    console.log('')
+  }
 };
 
-export   const handleSetFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // e.target.files[0];
-  };
+export const handleSetFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // e.target.files[0];
+};

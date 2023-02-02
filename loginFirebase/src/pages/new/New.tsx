@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import tw from "tailwind-styled-components";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-
+import {createUserWithEmailAndPassword } from "firebase/auth";
 import { T_newUserFields } from "./newFields";
 import { default_User, handleAdd, handleInput, handleSetFile } from "./newHandlers";
 
@@ -17,10 +17,13 @@ const SubmitBtn=tw.button` text-xl border-2 w-56 bg-purple-700 rounded-md mt-8`
 
 // Module
 const New = ({ newUserFields }: { newUserFields: T_newUserFields[] }) => {
-
+  const [userData, setUserData] = useState(default_User);
   const [per, setPer] = useState(1000);
 
-  // TSX
+  useEffect(()=>{
+    console.log(userData)
+  },[userData])
+  // render module
   return (
     <Container>
       <div className="flex justify-center m-8 ">
@@ -29,7 +32,7 @@ const New = ({ newUserFields }: { newUserFields: T_newUserFields[] }) => {
           alt="no pic"
         />
       </div>
-      <Form onSubmit={handleAdd} >
+      <Form onSubmit={(e)=>handleAdd(e,userData,setUserData)} >
         <div className="h-20 mt-12">
           <label htmlFor="file" className=" text-xl font-roboto">
             Image: <FileUploadIcon className="icon" />
@@ -49,7 +52,7 @@ const New = ({ newUserFields }: { newUserFields: T_newUserFields[] }) => {
                 id={input.id}
                 type={input.type}
                 placeholder={input.placeholder}
-                onChange={handleInput}
+                onChange={(e)=>handleInput(e,userData,setUserData)}
               />
             </FieldDiv>
           ))}

@@ -6,8 +6,9 @@ import { getFirestore } from "firebase/firestore";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
+console.log(import.meta.env.VITE_REACT_APP_FIREBASE_KEY)
 const firebaseConfig = {
-  apiKey: 'AIzaSyDDl6NKYw67cOgza7vupB4zHJuKnWMBAyU',
+  apiKey: import.meta.env.VITE_REACT_APP_FIREBASE_KEY,
   authDomain: "react-login-1-d9adc.firebaseapp.com",
   projectId: "react-login-1-d9adc",
   storageBucket: "react-login-1-d9adc.appspot.com",
